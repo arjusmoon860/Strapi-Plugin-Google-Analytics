@@ -57,7 +57,6 @@ module.exports = ({ strapi }) => ({
     return new Promise(async (resolve, reject) => {
       try {
         let credentials = await this.getGoogleCredentials();
-        console.log(credentials)
         if (!credentials) {
           return reject({ error: true, message: "Add credentials to activate the login feature." })
         }
@@ -114,6 +113,76 @@ module.exports = ({ strapi }) => ({
         });
 
         resolve();
+      } catch (error) {
+        console.log(error);
+        reject(error);
+      }
+    })
+  },
+
+  getGoogleAnalyticsData(google_client_id, google_client_secret, google_redirect_url, refresh_token) {
+    const oauth2Client = new google.auth.OAuth2(
+      google_client_id,
+      google_client_secret,
+      google_redirect_url
+    );
+    oauth2Client.setCredentials({
+      refresh_token: refresh_token
+    });
+    google.options({
+      auth: oauth2Client
+    });
+    const analyticsreporting = google.analyticsreporting('v4');
+
+    return new Promise(async (resolve, reject) => {
+      try {
+        const res = await analyticsreporting.reports.batchGet({
+          requestBody: {
+            reportRequests: [
+              {
+                viewId: '223210770',
+                dateRanges: [
+                  {
+                    startDate: '2022-04-27',
+                    endDate: '2022-05-03',
+                  }
+                ],
+                metrics: [
+                  {
+                    expression: 'ga:users',
+                  },
+                  {
+                    expression: 'ga:pageviews'
+                  },
+                  {
+                    expression: 'ga:avgSessionDuration'
+                  },
+                  {
+                    expression: 'ga:bounceRate'
+                  },
+                ],
+                dimensions: [{ name: 'ga:userType' }]
+              },
+            ],
+          },
+        });
+        resolve(res);
+      } catch (error) {
+        reject(error);
+      }
+    })
+  },
+
+  fetchAnalyticsData() {
+    return new Promise(async (resolve, reject) => {
+      try {
+        let credentials = await this.getGoogleCredentials();
+        if (!credentials) {
+          return reject({ error: true, message: "Add credentials to activate the login feature." })
+        }
+        const { google_client_id, google_client_secret, google_redirect_url, refresh_token } = credentials;
+        let analyticsData = await this.getGoogleAnalyticsData(google_client_id, google_client_secret, google_redirect_url, refresh_token);
+        resolve(analyticsData.data);
       } catch (error) {
         console.log(error);
         reject(error);

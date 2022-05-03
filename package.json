@@ -3,7 +3,8 @@
   "version": "0.0.0",
   "description": "This is the description of the plugin.",
   "strapi": {
-    "name": "Google Analytics",
+    "name": "strapi-plugin-google-analytics",
+    "displayName": "Google Analytics",
     "description": "Description of strapi-plugin-google-analytics plugin",
     "kind": "plugin"
   },

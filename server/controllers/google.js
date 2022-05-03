@@ -69,7 +69,11 @@ module.exports = {
     },
     async fetchAnalyticsData(ctx) {
         try {
-            ctx.body = "ok";
+            let data = await strapi
+                .plugin('strapi-plugin-google-analytics')
+                .service('google')
+                .fetchAnalyticsData();
+            ctx.body = data;
         } catch (error) {
             ctx.badRequest("Unable to fetch the data", null);
         }
